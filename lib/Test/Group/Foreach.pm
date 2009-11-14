@@ -1,7 +1,7 @@
 package Test::Group::Foreach;
 use strict;
 use warnings;
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 NAME
 
@@ -9,7 +9,7 @@ Test::Group::Foreach - repeat tests for several values
 
 =head1 SYNOPSIS
 
-  use Test::More tests => 2;
+  use Test::More;
   use Test::Group;
   use Test::Group::Foreach;
 
@@ -53,11 +53,12 @@ use Carp;
 use Test::Group qw(next_test_plugin);
 use Test::NameNote;
 
-our (@ISA, @EXPORT);
+our (@ISA, @EXPORT, @EXPORT_OK);
 BEGIN {
     require Exporter;
     @ISA = qw(Exporter);
     @EXPORT = qw(next_test_foreach);
+    @EXPORT_OK = qw(tgf_label);
 }
 
 =head1 FUNCTIONS
@@ -131,6 +132,8 @@ containing label/value pairs.  The following examples are all equivalent:
 
 =cut
 
+our %_value_to_label;
+
 sub next_test_foreach (\$$@) {
     my $varref = shift;
     my $name   = shift;
@@ -140,8 +143,8 @@ sub next_test_foreach (\$$@) {
     foreach my $valspec (@_) {
         if (ref $valspec eq 'ARRAY') {
             my @a = @$valspec;
-            @a or confess "empty arrayref passed to next_test_foreach";
-            @a % 2 and confess
+            @a or croak "empty arrayref passed to next_test_foreach";
+            @a % 2 and croak
                   "odd number of elts in arrayref passed to next_test_foreach";
             while (@a) {
                 my $label = shift @a;
@@ -163,9 +166,33 @@ sub next_test_foreach (\$$@) {
                 my $notetext = length $name ? "$name=$val->[0]" : $val->[0];
                 $note = Test::NameNote->new($notetext);
             }
+            local $_value_to_label{"$varref"} = $val->[0];
             $next->();
         }
     };
+}
+
+=back
+
+The following function is not exported by default.
+
+=over
+
+=item tgf_label ( VARIABLE )
+
+Returns the label associated with the current value of VARIABLE. Can only be
+called from within a test group, and VARIABLE must be a scalar that is being
+varied by next_test_foreach().
+
+=cut
+
+sub tgf_label (\$) {
+    my $varref = shift;
+
+    defined $_value_to_label{"$varref"} or croak
+                                            "non-foreach scalar in tgf_label";
+
+    return $_value_to_label{"$varref"};
 }
 
 =back

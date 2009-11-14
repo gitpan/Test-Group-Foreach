@@ -1,6 +1,6 @@
 ---
 name: Test-Group-Foreach
-version: 0.01
+version: 0.02
 author:
   - 'Nick Cleaton <nick@cleaton.net>'
 abstract: repeat tests for several values
@@ -21,7 +21,7 @@ configure_requires:
 provides:
   Test::Group::Foreach:
     file: lib/Test/Group/Foreach.pm
-    version: 0.01
+    version: 0.02
 generated_by: Module::Build version 0.35
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html

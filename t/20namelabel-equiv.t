@@ -5,7 +5,6 @@ use warnings;
 
 use Test::More;
 use Test::Builder::Tester;
-use Storable qw(dclone);
 
 use Test::Group;
 use Test::Group::Foreach;
@@ -65,9 +64,9 @@ foreach my $eg (@equiv_groups) {
     }
 
     while ( my ($name, $vals) = each %$eg ) {
-        my $cloned_vals = dclone($vals);
+        my $vals_copy = clone($vals);
         next_test_foreach my $foo, 'foo', @$vals;
-        is_deeply $vals, $cloned_vals, "vals array not modified";
+        is_deeply $vals, $vals_copy, "vals array not modified";
 
         test_out("ok 1 - foo outer");
         test_diag(@want_diag);
@@ -75,4 +74,15 @@ foreach my $eg (@equiv_groups) {
         test_test("label pattern $name"); 
     }
 } 
+
+sub clone {
+    my $thing = shift;
+
+    ref $thing or return $thing;
+    if (ref $thing eq 'ARRAY') {
+        return [ map {clone($_)} @$thing ];
+    } else {
+        die "can't clone a ".ref($thing);
+    }
+}
 
