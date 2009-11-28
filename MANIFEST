@@ -14,6 +14,7 @@ xt/checkchanges.t
 xt/cpanmeta.t
 xt/dependencies.t
 xt/distmanifest.t
+xt/hasversion.t
 xt/kwalitee.t
 xt/minimumversion.t
 xt/nobadtext.t

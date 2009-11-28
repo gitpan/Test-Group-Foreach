@@ -1,7 +1,7 @@
 package Test::Group::Foreach;
 use strict;
 use warnings;
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 NAME
 
@@ -183,6 +183,26 @@ The following function is not exported by default.
 Returns the label associated with the current value of VARIABLE. Can only be
 called from within a test group, and VARIABLE must be a scalar that is being
 varied by next_test_foreach().
+
+This is useful if you want your test to do something slightly differently
+for some values, for example:
+
+  use Test::Group::Foreach qw(next_test_foreach tgf_label);
+
+  next_test_foreach my $x, 'x', [
+    foo => [{asd => 0, r => 19}, 'foo'],
+    bar => [{a => b}, ['bar'], [], {}],
+    baz => [{x => y}, {p => q}],
+  ];
+
+  test mytest => sub {
+      if (tgf_label $x eq 'bar') {
+          # special handling for the 'bar' case ...
+          ...
+      }
+      ...
+  };
+
 
 =cut
 
